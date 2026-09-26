@@ -1,11 +1,14 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
@@ -20,6 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
+        validateUserDto(userDto);
         checkEmailExists(userDto.getEmail());
         User user = UserMapper.toUser(userDto);
         User saved = userRepository.save(user);
@@ -61,16 +65,28 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    private void validateUserDto(UserDto dto) {
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new ValidationException("Имя не может быть пустым");
+        }
+        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
+            throw new ValidationException("Email не может быть пустым");
+        }
+        if (!dto.getEmail().contains("@")) {
+            throw new ValidationException("Некорректный формат email");
+        }
+    }
+
     private void checkEmailExists(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new ValidationException("Email " + email + " уже используется");
+            throw new ConflictException("Email " + email + " уже используется");
         }
     }
 
     private void checkEmailForUpdate(String email, Long currentUserId) {
         userRepository.findByEmail(email).ifPresent(existing -> {
             if (!existing.getId().equals(currentUserId)) {
-                throw new ValidationException("Email " + email + " уже используется");
+                throw new ConflictException("Email " + email + " уже используется");
             }
         });
     }

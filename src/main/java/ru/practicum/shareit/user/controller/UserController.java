@@ -1,15 +1,13 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.controller;
 
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
-@RequestMapping(path = "/users")
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -22,7 +20,7 @@ public class UserController {
         return userService.createUser(userDto);
     }
 
-    @PatchMapping
+    @PatchMapping("/{id}")
     public UserDto updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
         return userService.updateUser(id, userDto);
     }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.repository;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
@@ -12,12 +12,12 @@ public class UserRepository {
     private final AtomicLong idGenerator = new AtomicLong(0);
 
     public User save(User user) {
-       if (user.getId() == null) {
-           long id = idGenerator.incrementAndGet();
-           user.setId(id);
-       }
-       users.put(user.getId(), user);
-       return user;
+        if (user.getId() == null) {
+            long id = idGenerator.incrementAndGet();
+            user.setId(id);
+        }
+        users.put(user.getId(), user);
+        return user;
     }
 
     public Optional<User> findById(Long id) {
