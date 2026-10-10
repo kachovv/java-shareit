@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -15,15 +16,17 @@ import java.util.List;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
-    public final ItemRepository itemRepository;
-    public final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
     }
 
+    @Transactional
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         validateItemDto(itemDto);
@@ -37,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(saved);
     }
 
+    @Transactional
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         Item item = getItemOrThrow(itemId);
@@ -57,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Обновлена вещи с id = {}", itemId);
 
         return ItemMapper.toItemDto(saved);
-        }
+    }
 
     @Override
     public ItemDto getById(Long itemId) {
@@ -81,7 +85,6 @@ public class ItemServiceImpl implements ItemService {
                 .map(ItemMapper::toItemDto)
                 .toList();
     }
-
 
     private void validateItemDto(ItemDto dto) {
         if (dto.getName() == null || dto.getName().isBlank()) {
