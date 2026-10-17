@@ -41,7 +41,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                                      @Param("now") LocalDateTime now,
                                      Sort sort);
 
-    List<Booking> findAllByItem_Id(Long itemId, Sort sort);
+    List<Booking> findAllByItem_Id(Long itemId);
 
     boolean existsByBooker_IdAndItem_IdAndEndBeforeAndStatus(
             Long bookerId, Long itemId, LocalDateTime now, BookingStatus status);
