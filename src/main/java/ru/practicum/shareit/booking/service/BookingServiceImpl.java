@@ -97,12 +97,12 @@ public class BookingServiceImpl implements BookingService {
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
         List<Booking> bookings = switch (state) {
-            case ALL      -> bookingRepository.findByBooker_Id(userId, sort);
-            case WAITING  -> bookingRepository.findByBooker_IdAndStatus(userId, BookingStatus.WAITING, sort);
+            case ALL -> bookingRepository.findByBooker_Id(userId, sort);
+            case WAITING -> bookingRepository.findByBooker_IdAndStatus(userId, BookingStatus.WAITING, sort);
             case REJECTED -> bookingRepository.findByBooker_IdAndStatus(userId, BookingStatus.REJECTED, sort);
-            case PAST     -> bookingRepository.findByBooker_IdAndEndBefore(userId, now, sort);
-            case FUTURE   -> bookingRepository.findByBooker_IdAndStartAfter(userId, now, sort);
-            case CURRENT  -> bookingRepository.findCurrentByBooker(userId, now, sort);
+            case PAST -> bookingRepository.findByBooker_IdAndEndBefore(userId, now, sort);
+            case FUTURE -> bookingRepository.findByBooker_IdAndStartAfter(userId, now, sort);
+            case CURRENT -> bookingRepository.findCurrentByBooker(userId, now, sort);
         };
         return bookings.stream()
                 .map(BookingMapper::toBookingDto)
@@ -117,12 +117,12 @@ public class BookingServiceImpl implements BookingService {
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
         List<Booking> bookings = switch (state) {
-            case ALL      -> bookingRepository.findByItem_Owner_Id(userId, sort);
-            case WAITING  -> bookingRepository.findByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, sort);
+            case ALL -> bookingRepository.findByItem_Owner_Id(userId, sort);
+            case WAITING -> bookingRepository.findByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, sort);
             case REJECTED -> bookingRepository.findByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED, sort);
-            case PAST     -> bookingRepository.findByItem_Owner_IdAndEndBefore(userId, now, sort);
-            case FUTURE   -> bookingRepository.findByItem_Owner_IdAndStartAfter(userId, now, sort);
-            case CURRENT  -> bookingRepository.findCurrentByOwner(userId, now, sort);
+            case PAST -> bookingRepository.findByItem_Owner_IdAndEndBefore(userId, now, sort);
+            case FUTURE -> bookingRepository.findByItem_Owner_IdAndStartAfter(userId, now, sort);
+            case CURRENT -> bookingRepository.findCurrentByOwner(userId, now, sort);
         };
         return bookings.stream()
                 .map(BookingMapper::toBookingDto)
