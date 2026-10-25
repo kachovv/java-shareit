@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ConflictException;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
@@ -21,6 +23,7 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     @Override
     public UserDto createUser(UserDto userDto) {
         validateUserDto(userDto);
@@ -31,6 +34,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(saved);
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(Long id, UserDto userDto) {
         User user = getUserOrThrow(id);
@@ -46,6 +50,14 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(user);
     }
 
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        getUserOrThrow(id);
+        log.info("Удален пользователь с id = {}", id);
+        userRepository.deleteById(id);
+    }
+
     @Override
     public UserDto getById(Long id) {
         User user = getUserOrThrow(id);
@@ -56,13 +68,6 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getAll() {
         List<User> userList = userRepository.findAll();
         return userList.stream().map(UserMapper::toUserDto).toList();
-    }
-
-    @Override
-    public void delete(Long id) {
-        getUserOrThrow(id);
-        log.info("Удален пользователь с id = {}", id);
-        userRepository.deleteById(id);
     }
 
     private void validateUserDto(UserDto dto) {

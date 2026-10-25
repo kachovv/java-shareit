@@ -32,4 +32,11 @@ public class ErrorHandler {
         log.warn("409: {}", e.getMessage());
         return Map.of("error", e.getMessage());
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, String> handleForbidden(ForbiddenException e) {
+        log.warn("403: {}", e.getMessage());
+        return Map.of("error", e.getMessage());
+    }
 }
