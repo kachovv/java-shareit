@@ -16,6 +16,8 @@ import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.user.model.User;
@@ -33,22 +35,29 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository, ItemRequestRepository itemRequestRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.commentRepository = commentRepository;
+        this.itemRequestRepository = itemRequestRepository;
     }
 
     @Transactional
     @Override
-    public ItemDto create(Long userId, ItemDto itemDto) {
+    public ItemDto create(Long userId, ItemDto itemDto, Long requestId) {
         validateItemDto(itemDto);
         User owner = getUserOrThrow(userId);
 
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
+        ItemRequest request = null;
+        if (requestId != null) {
+            request = itemRequestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос с id = " + requestId + " не существует"));
+        }
+        item.setRequest(request);
 
         Item saved = itemRepository.save(item);
         log.info("Добавлена вещь с id = {} владельцем id = {}", saved.getId(), userId);
