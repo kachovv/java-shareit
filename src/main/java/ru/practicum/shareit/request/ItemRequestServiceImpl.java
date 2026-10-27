@@ -43,6 +43,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         request.setCreated(LocalDateTime.now());
 
         ItemRequest saved = itemRequestRepository.save(request);
+
+        log.info("Добавлен запрос с id = {} и владельцем id = {}", saved.getId(), requester.getId());
         return ItemRequestMapper.toItemRequestDto(saved, List.of());
     }
 
@@ -50,6 +52,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getUserRequests(Long userId) {
         getUserOrThrow(userId);
         List <ItemRequest> requests = itemRequestRepository.findAllByRequester_Id(userId, Sort.by(Sort.Direction.DESC, "created"));
+
         return requests.stream().map(request -> {
             List<Item> items = itemRepository.findAllByRequest_Id(request.getId());
             return ItemRequestMapper.toItemRequestDto(request, items);
