@@ -1,18 +1,20 @@
 package ru.practicum.shareit.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class ItemRequest {
+public class ItemRequestDto {
     private Long id;
+
+    @NotBlank(message = "Описание не может быть пустым")
     private String description;
-    private User requester;
+
     private LocalDateTime created;
 }

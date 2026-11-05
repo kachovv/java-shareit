@@ -90,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByBooker(Long userId, BookingState state) {
+    public List<BookingDto> getAllByBooker(Long userId, BookingState state, int from, int size) {
         getUserOrThrow(userId);
 
         LocalDateTime now = LocalDateTime.now();
@@ -105,12 +105,14 @@ public class BookingServiceImpl implements BookingService {
             case CURRENT -> bookingRepository.findCurrentByBooker(userId, now, sort);
         };
         return bookings.stream()
+                .skip(from)
+                .limit(size)
                 .map(BookingMapper::toBookingDto)
                 .toList();
     }
 
     @Override
-    public List<BookingDto> getAllByOwner(Long userId, BookingState state) {
+    public List<BookingDto> getAllByOwner(Long userId, BookingState state, int from, int size) {
         getUserOrThrow(userId);
 
         LocalDateTime now = LocalDateTime.now();
@@ -125,6 +127,8 @@ public class BookingServiceImpl implements BookingService {
             case CURRENT -> bookingRepository.findCurrentByOwner(userId, now, sort);
         };
         return bookings.stream()
+                .skip(from)
+                .limit(size)
                 .map(BookingMapper::toBookingDto)
                 .toList();
     }
