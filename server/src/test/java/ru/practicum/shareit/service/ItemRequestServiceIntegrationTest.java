@@ -53,7 +53,7 @@ public class ItemRequestServiceIntegrationTest {
         assertThat(createdRequest.getItems()).isEmpty();
 
         ItemRequest savedRequest = itemRequestRepository.findById(createdRequest.getId()).orElseThrow();
-        assertThat(savedRequest.getDescription()).isEqualTo("Нужна дерль");
+        assertThat(savedRequest.getDescription()).isEqualTo("Нужна дрель");
         assertThat(savedRequest.getRequester().getId()).isEqualTo(requester.getId());
     }
 
@@ -109,6 +109,7 @@ public class ItemRequestServiceIntegrationTest {
         itemRequest3.setDescription("Нужен фен дайсон");
         itemRequest3.setRequester(otherUser);
         itemRequest3.setCreated(LocalDateTime.now().minusDays(4));
+        itemRequestRepository.save(itemRequest3);
 
         List<ItemRequestDto> result = itemRequestService.getAllOtherRequests(requester.getId(), 0, 10);
 
