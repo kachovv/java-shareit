@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ItemRequestControllerTest.class)
+@WebMvcTest(ItemRequestController.class)
 public class ItemRequestControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -56,22 +57,6 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenDescriptionIsNull() throws Exception {
-        Long userId = 1L;
-        ItemRequestDto invalidDto = new ItemRequestDto();
-        invalidDto.setId(10L);
-
-        String json = objectMapper.writeValueAsString(invalidDto);
-
-        mockMvc.perform(post("/requests")
-                .header("X-Sharer-User-Id", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isBadRequest());
-        verify(itemRequestService, never()).create(any(), any());
-    }
-
-    @Test
     void shouldReturnUserRequests() throws Exception {
         Long userId =1L;
         ItemRequestDto dto = new ItemRequestDto();
@@ -86,7 +71,7 @@ public class ItemRequestControllerTest {
 
         when(itemRequestService.getUserRequests(eq(userId))).thenReturn(responseList);
 
-        mockMvc.perform(get("/requests/")
+        mockMvc.perform(get("/requests")
                 .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))

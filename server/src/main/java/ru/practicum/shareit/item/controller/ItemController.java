@@ -19,9 +19,8 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                          @RequestBody ItemDto itemDto,
-                          @RequestParam(required = false) Long requestId) {
-        return itemService.create(userId, itemDto, requestId);
+                          @RequestBody ItemDto itemDto) {
+        return itemService.create(userId, itemDto, itemDto.getRequestId());
     }
 
     @PostMapping("/{itemId}/comment")

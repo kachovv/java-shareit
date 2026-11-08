@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
@@ -22,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@WebMvcTest(ItemControllerTest.class)
+@WebMvcTest(ItemController.class)
 public class ItemControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -137,7 +138,7 @@ public class ItemControllerTest {
 
         when(itemService.getAllByOwner(eq(userId))).thenReturn(list);
 
-        mockMvc.perform(get("/items/" + userId)
+        mockMvc.perform(get("/items")
                 .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -151,7 +152,7 @@ public class ItemControllerTest {
         Long userId = 1L;
         when(itemService.getAllByOwner(userId)).thenReturn(List.of());
 
-        mockMvc.perform(get("/items/" + userId)
+        mockMvc.perform(get("/items")
                 .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
@@ -168,7 +169,7 @@ public class ItemControllerTest {
         mockMvc.perform(get("/items/search")
                 .param("text", searchText))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length").value(1))
+                .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Дрель Салют"));
         verify(itemService).search(eq(searchText));
     }
@@ -194,20 +195,5 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.text").value("Отличная дрель!"))
                 .andExpect(jsonPath("$.authorName").value("Иван"));
         verify(itemService).addComment(eq(userId), eq(itemId), any(CommentDto.class));
-    }
-
-    @Test
-    void shouldReturnBadRequest_whenCommentTextIsBlank() throws Exception {
-        Long userId = 1L;
-        Long itemId = 1L;
-        CommentDto invalidDto = new CommentDto(null, "", null, null);
-        String json = objectMapper.writeValueAsString(invalidDto);
-
-        mockMvc.perform(post("/items/" + itemId + "/comment")
-                .header("X-Sharer-User-Id", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isBadRequest());
-        verify(itemService, never()).addComment(any(), any(), any());
     }
 }

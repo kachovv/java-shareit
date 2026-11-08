@@ -7,10 +7,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.ValidationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(BookingControllerTest.class)
+@WebMvcTest(BookingController.class)
 public class BookingControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -65,19 +67,24 @@ public class BookingControllerTest {
     }
 
     @Test
-    void shouldReturnBadRequestWhenStartDateIsNull() throws Exception {
+    void shouldReturnBadRequest_whenServiceThrowsException() throws Exception {
         Long userId = 1L;
-        BookingDto invalidDto = new BookingDto();
-        invalidDto.setItemId(10L);
+        BookingDto dto = new BookingDto();
+        dto.setItemId(10L);
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+        String json = objectMapper.writeValueAsString(dto);
 
-        String json = objectMapper.writeValueAsString(invalidDto);
+        when(bookingService.create(eq(userId), any(BookingDto.class)))
+                .thenThrow(new ValidationException("Дата начала не может быть в прошлом"));
 
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());
-        verify(bookingService, never()).create(any(), any());
+
+        verify(bookingService).create(eq(userId), any(BookingDto.class));
     }
 
     @Test

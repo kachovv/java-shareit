@@ -18,7 +18,7 @@ public class ItemRequestClient extends BaseClient {
     private static final String API_PREFIX = "/requests";
 
     @Autowired
-    public ItemRequestClient(@Value("{shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public ItemRequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
@@ -32,7 +32,7 @@ public class ItemRequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getUserRequests(Long userId) {
-        return get("" + userId);
+        return get("", userId);
     }
 
     public ResponseEntity<Object> getAllOtherRequests(Long userId, Integer from, Integer size) {

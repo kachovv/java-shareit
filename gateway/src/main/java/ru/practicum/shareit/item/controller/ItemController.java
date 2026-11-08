@@ -16,9 +16,8 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @Valid @RequestBody ItemDto itemDto,
-                                         @RequestParam(required = false) Long requestId) {
-        return itemClient.create(userId, itemDto, requestId);
+                                         @Valid @RequestBody ItemDto itemDto) {
+        return itemClient.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")

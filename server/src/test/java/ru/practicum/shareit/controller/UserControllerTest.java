@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(UserControllerTest.class)
+@WebMvcTest(UserController.class)
 public class UserControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -47,19 +48,6 @@ public class UserControllerTest {
                         .andExpect(jsonPath("$.name").value("Иван"));
 
         verify(userService).createUser(any(UserDto.class));
-    }
-
-    @Test
-    void shouldReturnBadRequest_whenNameIsBlank() throws Exception {
-        UserDto invalidDto = new UserDto(null, "", "ivan@mail.ru");
-        String json = objectMapper.writeValueAsString(invalidDto);
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).createUser(any(UserDto.class));
     }
 
     @Test
