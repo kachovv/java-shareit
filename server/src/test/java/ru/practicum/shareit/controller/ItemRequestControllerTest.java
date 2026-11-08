@@ -15,7 +15,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,9 +48,9 @@ public class ItemRequestControllerTest {
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(post("/requests")
-                .header("X-Sharer-User-Id", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.description").value("Мне нужна мощная дрель"));
@@ -58,7 +59,7 @@ public class ItemRequestControllerTest {
 
     @Test
     void shouldReturnUserRequests() throws Exception {
-        Long userId =1L;
+        Long userId = 1L;
         ItemRequestDto dto = new ItemRequestDto();
         dto.setId(10L);
         dto.setDescription("Мне нужна мощная дрель");
@@ -72,7 +73,7 @@ public class ItemRequestControllerTest {
         when(itemRequestService.getUserRequests(eq(userId))).thenReturn(responseList);
 
         mockMvc.perform(get("/requests")
-                .header("X-Sharer-User-Id", userId))
+                        .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[1].description").value("Нужна лампа для ногтей"));
@@ -108,9 +109,9 @@ public class ItemRequestControllerTest {
         when(itemRequestService.getAllOtherRequests(eq(userId), eq(0), eq(10))).thenReturn(responseList);
 
         mockMvc.perform(get("/requests/all")
-                .header("X-Sharer-User-Id", userId)
-                .param("from", "0")
-                .param("size", "10"))
+                        .header("X-Sharer-User-Id", userId)
+                        .param("from", "0")
+                        .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[1].description").value("Нужна лампа для ногтей"));
@@ -123,7 +124,7 @@ public class ItemRequestControllerTest {
         when(itemRequestService.getAllOtherRequests(eq(userId), eq(0), eq(10))).thenReturn(List.of());
 
         mockMvc.perform(get("/requests/all")
-                .header("X-Sharer-User-Id", userId))
+                        .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
         verify(itemRequestService).getAllOtherRequests(eq(userId), eq(0), eq(10));
@@ -140,7 +141,7 @@ public class ItemRequestControllerTest {
         when(itemRequestService.getRequestById(eq(userId), eq(itemRequestId))).thenReturn(responseDto);
 
         mockMvc.perform(get("/requests/" + itemRequestId)
-                .header("X-Sharer-User-Id", userId))
+                        .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description").value("Нужна летающая метла"));
         verify(itemRequestService).getRequestById(eq(userId), eq(itemRequestId));

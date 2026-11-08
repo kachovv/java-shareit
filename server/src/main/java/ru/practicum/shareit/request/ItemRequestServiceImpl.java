@@ -51,7 +51,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getUserRequests(Long userId) {
         getUserOrThrow(userId);
-        List <ItemRequest> requests = itemRequestRepository.findAllByRequester_Id(userId, Sort.by(Sort.Direction.DESC, "created"));
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequester_Id(userId, Sort.by(Sort.Direction.DESC, "created"));
 
         return requests.stream().map(request -> {
             List<Item> items = itemRepository.findAllByRequest_Id(request.getId());
@@ -66,7 +66,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ValidationException("Параметры пагинации 'from' и 'size' должны быть положительными");
         }
         Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "created"));
-        List <ItemRequest> requests = itemRequestRepository.findAllByRequester_IdNot(userId, pageable);
+        List<ItemRequest> requests = itemRequestRepository.findAllByRequester_IdNot(userId, pageable);
         return requests.stream().map(request -> {
             List<Item> items = itemRepository.findAllByRequest_Id(request.getId());
             return ItemRequestMapper.toItemRequestDto(request, items);

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.time.LocalDateTime;
@@ -34,12 +33,12 @@ public class ItemRequestDtoJsonTest {
     @Test
     void shouldDeserializeItemRequestDto() throws Exception {
         String json = """
-                {
-                "id": 1,
-                "description": "Нужна новая дрель",
-                "created": "2024-12-01T10:00:00"
-          }
-          """;
+                      {
+                      "id": 1,
+                      "description": "Нужна новая дрель",
+                      "created": "2024-12-01T10:00:00"
+                }
+                """;
         ItemRequestDto result = jacksonTester.parseObject(json);
 
         assertThat(result.getId()).isEqualTo(1L);

@@ -17,11 +17,13 @@ import ru.practicum.shareit.item.service.ItemService;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @WebMvcTest(ItemController.class)
 public class ItemControllerTest {
@@ -139,7 +141,7 @@ public class ItemControllerTest {
         when(itemService.getAllByOwner(eq(userId))).thenReturn(list);
 
         mockMvc.perform(get("/items")
-                .header("X-Sharer-User-Id", userId))
+                        .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].name").value("Дрель"))
@@ -153,7 +155,7 @@ public class ItemControllerTest {
         when(itemService.getAllByOwner(userId)).thenReturn(List.of());
 
         mockMvc.perform(get("/items")
-                .header("X-Sharer-User-Id", userId))
+                        .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
         verify(itemService).getAllByOwner(eq(userId));
@@ -167,7 +169,7 @@ public class ItemControllerTest {
         when(itemService.search(eq(searchText))).thenReturn(List.of(itemDto));
 
         mockMvc.perform(get("/items/search")
-                .param("text", searchText))
+                        .param("text", searchText))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Дрель Салют"));
@@ -187,9 +189,9 @@ public class ItemControllerTest {
         String json = objectMapper.writeValueAsString(requestDto);
 
         mockMvc.perform(post("/items/" + itemId + "/comment")
-                .header("X-Sharer-User-Id", userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.text").value("Отличная дрель!"))

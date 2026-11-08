@@ -23,16 +23,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 @Transactional
 public class ItemRequestServiceIntegrationTest {
+    User requester;
     @Autowired
     private ItemRequestService itemRequestService;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private ItemRequestRepository itemRequestRepository;
 
-    User requester;
     @BeforeEach
     void setUp() {
         requester = new User();

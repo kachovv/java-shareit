@@ -160,9 +160,9 @@ public class ItemServiceIntegrationTest {
         assertThat(items).hasSize(3);
 
         ItemWithBookingsDto dto = items.stream()
-                        .filter(i -> i.getId().equals(item.getId()))
-                                .findFirst()
-                                        .orElseThrow();
+                .filter(i -> i.getId().equals(item.getId()))
+                .findFirst()
+                .orElseThrow();
 
         assertThat(dto.getLastBooking()).isNotNull();
         assertThat(dto.getNextBooking()).isNotNull();

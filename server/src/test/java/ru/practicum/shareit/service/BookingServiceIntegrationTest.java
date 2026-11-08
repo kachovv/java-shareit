@@ -28,24 +28,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 @Transactional
 public class BookingServiceIntegrationTest {
-    @Autowired
-    private BookingService bookingService;
-
-    @Autowired
-    private BookingRepository bookingRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ItemRepository itemRepository;
-
-    @Autowired
-    private ItemService itemService;
-
     User owner;
     User booker;
     Item item;
+    @Autowired
+    private BookingService bookingService;
+    @Autowired
+    private BookingRepository bookingRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private ItemService itemService;
 
     @BeforeEach
     void setUp() {

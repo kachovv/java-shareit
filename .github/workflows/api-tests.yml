@@ -179,7 +179,7 @@ jobs:
             docker compose -f docker-compose.yml logs -f gateway >> ./gateway.log || true
             docker compose -f docker-compose.yml logs -f server >> ./server.log || true
           fi
-  
+
 
       - name: Upload log artifact
         if: ${{ failure() }}

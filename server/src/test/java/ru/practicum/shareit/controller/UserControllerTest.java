@@ -43,9 +43,9 @@ public class UserControllerTest {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.id").value(1))
-                        .andExpect(jsonPath("$.name").value("Иван"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Иван"));
 
         verify(userService).createUser(any(UserDto.class));
     }
@@ -61,8 +61,8 @@ public class UserControllerTest {
         String json = objectMapper.writeValueAsString(requestDto);
 
         mockMvc.perform(patch("/users/" + userId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Новое Имя"));
         verify(userService).updateUser(eq(userId), any(UserDto.class));
@@ -78,8 +78,8 @@ public class UserControllerTest {
                 .thenThrow(new NotFoundException("Пользователь не найден"));
 
         mockMvc.perform(patch("/users/" + invalidId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isNotFound());
 
         verify(userService).updateUser(eq(invalidId), any(UserDto.class));
