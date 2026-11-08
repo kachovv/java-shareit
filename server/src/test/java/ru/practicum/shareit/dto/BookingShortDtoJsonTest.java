@@ -33,14 +33,12 @@ public class BookingShortDtoJsonTest {
 
     @Test
     void shouldDeserializeBookingDto() throws Exception {
-        String json = """
-                {
-                  "id": 1,
-                  "bookerId": 10,
-                  "start": "2024-12-01T10:00:00",
-                  "end": "2024-12-02T12:00:00"
-                }
-                """;
+        String json = "{"
+                + "\"id\": 1,"
+                + "\"bookerId\": 10,"
+                + "\"start\": \"2024-12-01T10:00:00\","
+                + "\"end\": \"2024-12-02T12:00:00\""
+                + "}";
         BookingShortDto result = jacksonTester.parseObject(json);
 
         assertThat(result.getId()).isEqualTo(1L);

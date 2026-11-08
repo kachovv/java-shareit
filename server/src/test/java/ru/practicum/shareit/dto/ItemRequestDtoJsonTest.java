@@ -32,13 +32,11 @@ public class ItemRequestDtoJsonTest {
 
     @Test
     void shouldDeserializeItemRequestDto() throws Exception {
-        String json = """
-                      {
-                      "id": 1,
-                      "description": "Нужна новая дрель",
-                      "created": "2024-12-01T10:00:00"
-                }
-                """;
+        String json = "{"
+                + "\"id\": 1,"
+                + "\"description\": \"Нужна новая дрель\","
+                + "\"created\": \"2024-12-01T10:00:00\""
+                + "}";
         ItemRequestDto result = jacksonTester.parseObject(json);
 
         assertThat(result.getId()).isEqualTo(1L);
