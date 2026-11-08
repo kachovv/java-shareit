@@ -11,7 +11,9 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -161,5 +163,174 @@ public class BookingServiceIntegrationTest {
                 10
         );
         assertThat(list).hasSize(2);
+    }
+
+    @Test
+    void shouldReturnBookingsForAllStatesByBookerAndOwner() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        bookingService.create(booker.getId(), dto);
+
+        for (BookingState state : BookingState.values()) {
+            List<BookingDto> bookerBookings = bookingService.getAllByBooker(
+                    booker.getId(), state, 0, 10
+            );
+
+            List<BookingDto> ownerBookings = bookingService.getAllByOwner(
+                    owner.getId(), state, 0, 10
+            );
+
+            assertThat(bookerBookings).isNotNull();
+            assertThat(ownerBookings).isNotNull();
+        }
+    }
+
+    @Test
+    void shouldThrowWhenItemIdIsNull() {
+        BookingDto dto = new BookingDto();
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        assertThatThrownBy(() -> bookingService.create(booker.getId(), dto))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldThrowWhenItemIsUnavailable() {
+        item.setAvailable(false);
+        itemRepository.save(item);
+
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        assertThatThrownBy(() -> bookingService.create(booker.getId(), dto))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldThrowWhenUserDoesNotExist() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        assertThatThrownBy(() -> bookingService.create(Long.MAX_VALUE, dto))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void shouldThrowWhenItemDoesNotExist() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(Long.MAX_VALUE);
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        assertThatThrownBy(() -> bookingService.create(booker.getId(), dto))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void shouldThrowWhenBookingDatesAreNull() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        assertThatThrownBy(() -> bookingService.create(booker.getId(), dto))
+                .isInstanceOf(ValidationException.class);
+
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(null);
+
+        assertThatThrownBy(() -> bookingService.create(booker.getId(), dto))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldThrowWhenStartDateIsAfterEndDate() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+
+        LocalDateTime date = LocalDateTime.now().plusDays(2);
+        dto.setStart(date);
+        dto.setEnd(date);
+
+        assertThatThrownBy(() -> bookingService.create(booker.getId(), dto))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldThrowWhenStartDateIsInPast() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().minusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(1));
+
+        assertThatThrownBy(() -> bookingService.create(booker.getId(), dto))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldRejectBooking() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        BookingDto created = bookingService.create(booker.getId(), dto);
+
+        BookingDto rejected = bookingService.approve(
+                owner.getId(), created.getId(), false
+        );
+
+        assertThat(rejected.getStatus()).isEqualTo(BookingStatus.REJECTED);
+    }
+
+    @Test
+    void shouldThrowWhenBookingApprovedByNonOwner() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        BookingDto created = bookingService.create(booker.getId(), dto);
+
+        assertThatThrownBy(() ->
+                bookingService.approve(booker.getId(), created.getId(), true))
+                .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void shouldThrowWhenBookingAlreadyProcessed() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        BookingDto created = bookingService.create(booker.getId(), dto);
+
+        bookingService.approve(owner.getId(), created.getId(), true);
+
+        assertThatThrownBy(() ->
+                bookingService.approve(owner.getId(), created.getId(), false))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldReturnBookingForOwner() {
+        BookingDto dto = new BookingDto();
+        dto.setItemId(item.getId());
+        dto.setStart(LocalDateTime.now().plusDays(1));
+        dto.setEnd(LocalDateTime.now().plusDays(2));
+
+        BookingDto created = bookingService.create(booker.getId(), dto);
+
+        BookingDto found = bookingService.getById(owner.getId(), created.getId());
+
+        assertThat(found.getId()).isEqualTo(created.getId());
     }
 }

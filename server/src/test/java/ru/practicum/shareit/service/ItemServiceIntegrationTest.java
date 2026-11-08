@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.model.Comment;
@@ -71,6 +72,30 @@ public class ItemServiceIntegrationTest {
         Item savedItem = itemRepository.findById(createdItem.getId()).orElseThrow();
         assertThat(savedItem.getName()).isEqualTo("Лопата");
         assertThat(savedItem.getOwner().getId()).isEqualTo(owner.getId());
+    }
+
+    @Test
+    void shouldThrowWhenItemNameIsBlank() {
+        ItemDto dto = new ItemDto(null, " ", "Описание", true);
+
+        assertThatThrownBy(() -> itemService.create(owner.getId(), dto, null))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldThrowWhenItemDescriptionIsBlank() {
+        ItemDto dto = new ItemDto(null, "Дрель", " ", true);
+
+        assertThatThrownBy(() -> itemService.create(owner.getId(), dto, null))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void shouldThrowWhenItemAvailabilityIsNull() {
+        ItemDto dto = new ItemDto(null, "Дрель", "Описание", null);
+
+        assertThatThrownBy(() -> itemService.create(owner.getId(), dto, null))
+                .isInstanceOf(ValidationException.class);
     }
 
     @Test
